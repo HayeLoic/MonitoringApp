@@ -1,0 +1,136 @@
+<div *ngIf="!nlogViewModel" class="loader"></div>
+<div *ngIf="nlogViewModel && nlogViewModel.errorMessage" class="alert alert-danger">
+  <strong>Erreur : </strong> {{nlogViewModel.errorMessage}}
+</div>
+<div class="modal fade" id="nlogModal" tabindex="-1" role="dialog" aria-labelledby="nlogModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="nlogModalLabel">Détails du log</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div *ngIf="activeNlog" class="modal-body">
+        <form>
+          <div class="form-row">
+            <div class="form-group col-md-2">
+              <label>Id</label>
+              <input type="text" class="form-control" [value]="activeNlog.id" readonly>
+            </div>
+            <div class="form-group col-md-6">
+              <label>Create Date</label>
+              <input type="text" class="form-control" [value]="activeNlog.createDate | date: longDatetimeFormat"
+                readonly>
+            </div>
+            <div class="form-group col-md-4">
+              <label>Log Level</label>
+              <input type="text" class="form-control" [value]="activeNlog.logLevel" readonly>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-12">
+              <label>Process Name</label>
+              <input type="text" class="form-control" [value]="activeNlog.processName" readonly>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-4">
+              <label>Machine Name</label>
+              <input type="text" class="form-control" [value]="activeNlog.machineName" readonly>
+            </div>
+            <div class="form-group col-md-4">
+              <label>Process Id</label>
+              <input type="text" class="form-control" [value]="activeNlog.processId" readonly>
+            </div>
+            <div class="form-group col-md-4">
+              <label>Version</label>
+              <input type="text" class="form-control" [value]="activeNlog.version" readonly>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-12">
+              <label>Message</label>
+              <textarea class="form-control" [value]="activeNlog.message" rows="4" readonly></textarea>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-12">
+              <label>Exception</label>
+              <textarea class="form-control" [value]="activeNlog.exception" rows="4" readonly></textarea>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-12">
+              <label>Stack Trace</label>
+              <textarea class="form-control" [value]="activeNlog.stackTrace" rows="4" readonly></textarea>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div *ngIf="nlogViewModel">
+  <form class="row filter-container" autocomplete="off">
+    <div class="filter-label">Create Date comprise entre :</div>
+    <div class="form-group">
+      <div>
+        <input class="form-control" placeholder="JJ/MM/AAAA" bsDatepicker placement="bottom" [(ngModel)]="inferiorCreateDate"
+          [bsConfig]="{ dateInputFormat: datepickerFormat, containerClass: 'theme-default' }" name="inferiorCreateDate">
+      </div>
+    </div>
+    <div class="filter-label">et</div>
+    <div class="form-group">
+      <input class="form-control" placeholder="JJ/MM/AAAA" bsDatepicker placement="bottom" [(ngModel)]="superiorCreateDate"
+        [bsConfig]="{ dateInputFormat: datepickerFormat, containerClass: 'theme-default' }" name="superiorCreateDate">
+    </div>
+    <div class="filter-label">Process Name :</div>
+    <div>
+      <select class="form-control" name="processName" [(ngModel)]="processName">
+        <option></option>
+        <option *ngFor="let processName of nlogViewModel.processNames">{{processName}}</option>
+      </select>
+    </div>
+    <div class="col-md-2 form-group">
+      <button *ngIf="!isLoading" type="submit" class="btn btn-secondary" (click)="getNlogViewModel()">Rechercher</button>
+      <div *ngIf="isLoading" class="loader mini-loader"></div>
+    </div>
+    <div>
+      <div class="badge badge-pill badge-secondary badge-custom">{{getResultsCountLabel()}}</div>
+    </div>
+  </form>
+  <div class="table-wrapper" *ngIf="nlogViewModel && nlogViewModel.nlogs && nlogViewModel.nlogs.length > 0">
+    <table class="table table-hover table-dark table-striped custom-table">
+      <thead>
+        <tr class="text-center">
+          <th scope="col" class="id-column">Id</th>
+          <th scope="col" class="create-date-column">Create Date</th>
+          <th scope="col" class="process-name-column">Process Name</th>
+          <th scope="col" class="log-level-column">Log level</th>
+          <th scope="col">Message</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let nlog of nlogViewModel.nlogs | paginate: { itemsPerPage: numberOfItemsPerPage, currentPage: page }"
+          class="custom-table-row text-center" data-toggle="modal" data-target="#nlogModal" (click)="setActiveNlog(nlog)">
+          <th scope="row" class="id-column">{{nlog.id}}</th>
+          <td class="create-date-column">{{nlog.createDate | date: shortDatetimeFormat}}</td>
+          <td class="process-name-column">{{nlog.processName}}</td>
+          <td class="log-level-column">
+            <i *ngIf="isError(nlog.logLevel)" class="fa fa-times-circle fa-2x text-danger"></i>
+            <i *ngIf="isWarning(nlog.logLevel)" class="fa fa-exclamation-triangle fa-2x text-warning"></i>
+            <i *ngIf="isInfo(nlog.logLevel)" class="fa fa-info-circle fa-2x text-info"></i>
+            <span class="log-level-text">{{nlog.logLevel}}</span>
+          </td>
+          <td>{{nlog.message | slice : 0 : messageColumnMaxLength}}</td>
+        </tr>
+      </tbody>
+    </table>
+    <ngb-pagination [collectionSize]="nlogViewModel.nlogs.length" [(page)]="page" [maxSize]="maximumNumberOfPagesToDisplay"
+      [pageSize]="numberOfItemsPerPage" [rotate]="true" [ellipses]="false" [boundaryLinks]="true" class="d-flex justify-content-center pagination"></ngb-pagination>
+  </div>
+</div>

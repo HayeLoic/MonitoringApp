@@ -1,0 +1,19 @@
+.id-column {
+    width: 60px;
+}
+
+.create-date-column {
+    width: 200px;
+}
+
+.process-name-column {
+    width: 300px;
+}
+
+.log-level-column {
+    width: 120px;
+}
+
+.log-level-text {
+    vertical-align: super;
+}

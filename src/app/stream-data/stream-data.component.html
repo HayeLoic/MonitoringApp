@@ -1,0 +1,128 @@
+<div *ngIf="!streamDataViewModel" class="loader"></div>
+<div *ngIf="streamDataViewModel && streamDataViewModel.errorMessage" class="alert alert-danger">
+  <strong>Erreur : </strong> {{streamDataViewModel.errorMessage}}
+</div>
+<div class="modal fade" id="streamDataModal" tabindex="-1" role="dialog" aria-labelledby="streamDataModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="streamDataModalLabel">Détails de l'appel reçu par le Web Service</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div *ngIf="activeStreamData" class="modal-body">
+        <form>
+          <div class="form-row">
+            <div class="form-group col-md-4">
+              <label>Id</label>
+              <input type="text" class="form-control" [value]="activeStreamData.id" readonly>
+            </div>
+            <div class="form-group col-md-4">
+              <div class="text-center">Is Stream Valid</div>
+              <div class="text-center">
+                <i *ngIf="activeStreamData.isStreamValid" class="fa fa-check-circle fa-3x text-success"></i>
+                <i *ngIf="!activeStreamData.isStreamValid" class="fa fa-times-circle fa-3x text-danger"></i>
+              </div>
+            </div>
+            <div class="form-group col-md-4">
+              <div class="text-center">Are Data Exported</div>
+              <div class="text-center">
+                <i *ngIf="activeStreamData.areDataExported" class="fa fa-check-circle fa-3x text-success"></i>
+                <i *ngIf="!activeStreamData.areDataExported" class="fa fa-times-circle fa-3x text-danger"></i>
+              </div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label>Insert Date</label>
+              <input type="text" class="form-control" [value]="activeStreamData.insertDate | date: longDatetimeFormat"
+                readonly>
+            </div>
+            <div class="form-group col-md-6">
+              <label>Export Date</label>
+              <input type="text" class="form-control" [value]="activeStreamData.exportDate | date: longDatetimeFormat"
+                readonly>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-12">
+              <label>Content Message</label>
+              <textarea class="form-control" [value]="activeStreamData.contentMessage" rows="2" readonly></textarea>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-12">
+              <label>Raw Data</label>
+              <textarea class="form-control" [value]="activeStreamData.rawData" rows="4" readonly></textarea>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-12">
+              <label>Export Data</label>
+              <textarea class="form-control" [value]="activeStreamData.exportData" rows="4" readonly></textarea>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div *ngIf="streamDataViewModel">
+  <form class="row filter-container" autocomplete="off">
+    <div class="filter-label">Insert Date comprise entre :</div>
+    <div class="form-group">
+      <div>
+        <input class="form-control" placeholder="JJ/MM/AAAA" bsDatepicker placement="bottom" [(ngModel)]="inferiorInsertDate"
+          [bsConfig]="{ dateInputFormat: datepickerFormat, containerClass: 'theme-default' }" name="inferiorInsertDate">
+      </div>
+    </div>
+    <div class="filter-label">et</div>
+    <div class="form-group">
+      <input class="form-control" placeholder="JJ/MM/AAAA" bsDatepicker placement="bottom" [(ngModel)]="superiorInsertDate"
+        [bsConfig]="{ dateInputFormat: datepickerFormat, containerClass: 'theme-default' }" name="superiorInsertDate">
+    </div>
+    <div class="col-md-2 form-group">
+      <button *ngIf="!isLoading" type="submit" class="btn btn-secondary" (click)="getStreamDataViewModel()">Rechercher</button>
+      <div *ngIf="isLoading" class="loader mini-loader"></div>
+    </div>
+    <div>
+      <div class="badge badge-pill badge-secondary badge-custom">{{getResultsCountLabel()}}</div>
+    </div>
+  </form>
+  <div class="table-wrapper" *ngIf="streamDataViewModel && streamDataViewModel.streamDatas && streamDataViewModel.streamDatas.length > 0">
+    <table class="table table-hover table-dark table-striped custom-table">
+      <thead>
+        <tr class="text-center">
+          <th scope="col">Id</th>
+          <th scope="col">Insert Date</th>
+          <th scope="col">Is Stream Valid</th>
+          <th scope="col">Are Data Exported</th>
+          <th scope="col">Export Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let streamData of streamDataViewModel.streamDatas | paginate: { itemsPerPage: numberOfItemsPerPage, currentPage: page }"
+          class="custom-table-row text-center" data-toggle="modal" data-target="#streamDataModal" (click)="setActiveStreamData(streamData)">
+          <th scope="row">{{streamData.id}}</th>
+          <td>{{streamData.insertDate | date: shortDatetimeFormat}}</td>
+          <td>
+            <i *ngIf="streamData.isStreamValid" class="fa fa-check-circle fa-2x text-success"></i>
+            <i *ngIf="!streamData.isStreamValid" class="fa fa-times-circle fa-2x text-danger"></i>
+          </td>
+          <td>
+            <i *ngIf="streamData.areDataExported" class="fa fa-check-circle fa-2x text-success"></i>
+            <i *ngIf="!streamData.areDataExported" class="fa fa-times-circle fa-2x text-danger"></i>
+          </td>
+          <td>{{streamData.exportDate | date: shortDatetimeFormat}}</td>
+        </tr>
+      </tbody>
+    </table>
+    <ngb-pagination [collectionSize]="streamDataViewModel.streamDatas.length" [(page)]="page" [maxSize]="maximumNumberOfPagesToDisplay"
+      [pageSize]="numberOfItemsPerPage" [rotate]="true" [ellipses]="false" [boundaryLinks]="true" class="d-flex justify-content-center pagination"></ngb-pagination>
+  </div>
+</div>
