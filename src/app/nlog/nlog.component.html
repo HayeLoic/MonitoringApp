@@ -124,7 +124,7 @@
             <i *ngIf="isError(nlog.logLevel)" class="fa fa-times-circle fa-2x text-danger"></i>
             <i *ngIf="isWarning(nlog.logLevel)" class="fa fa-exclamation-triangle fa-2x text-warning"></i>
             <i *ngIf="isInfo(nlog.logLevel)" class="fa fa-info-circle fa-2x text-info"></i>
-            <span class="log-level-text">{{nlog.logLevel}}</span>
+            <span class="log-level-text"> {{nlog.logLevel}}</span>
           </td>
           <td>{{nlog.message | slice : 0 : messageColumnMaxLength}}</td>
         </tr>

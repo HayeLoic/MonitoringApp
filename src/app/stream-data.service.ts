@@ -17,11 +17,7 @@ const streamDataModelToGenerateCount: number = 357;
 export class StreamDataService {
   // private getStreamDataViewModelUrl = environment.apiEndpoint + '/Nlog/GetLastStreamDataModels';
 
-  private streamDataModels: StreamDataModel[] = [
-    { id: 1, streamProjectId: 1, rawData: 'rawData1', exportData: 'exportData1', areDataExported: true, isStreamValid: true, contentMessage: '', clientDatabaseName: 'clientDatabaseName', exportDate: new Date(2018, 2, 5, 5, 30), insertDate: new Date(2018, 2, 5, 4, 2) },
-    { id: 2, streamProjectId: 1, rawData: 'rawData2', exportData: '', areDataExported: false, isStreamValid: true, contentMessage: '', clientDatabaseName: 'clientDatabaseName', exportDate: null, insertDate: new Date(2018, 1, 14, 15, 7) },
-    { id: 3, streamProjectId: 1, rawData: 'rawData3', exportData: '', areDataExported: false, isStreamValid: false, contentMessage: 'data not valid', clientDatabaseName: 'clientDatabaseName', exportDate: null, insertDate: new Date(2018, 1, 1, 10, 55) }
-  ];
+  private streamDataModels: StreamDataModel[];
 
   generateStreamDataModels(streamDataModelToGenerateCount: number): StreamDataModel[] {
     let generatedStreamDataModels: StreamDataModel[] = [];
