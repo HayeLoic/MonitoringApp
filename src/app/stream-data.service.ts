@@ -4,10 +4,12 @@ import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { StreamDataViewModel } from './stream-data/stream-data-view-model';
 import { StreamDataModel } from './stream-data/stream-data-model';
+import { FakeDataGeneratorService } from './fake-data-generator.service';
 // import { environment } from '../environments/environment';
 // import { DataConverterService } from './data-converter.service';
 
 // const httpOptions = { headers: new HttpHeaders({ 'Content-Type': 'application/x-www-form-urlencoded' }) };
+const streamDataModelToGenerateCount: number = 357;
 
 @Injectable({
   providedIn: 'root'
@@ -15,18 +17,16 @@ import { StreamDataModel } from './stream-data/stream-data-model';
 
 export class StreamDataService {
   // private getStreamDataViewModelUrl = environment.apiEndpoint + '/Nlog/GetLastStreamDataModels';
+  private streamDataModels: StreamDataModel[];
 
-  private streamDataModels: StreamDataModel[] = [
-    { id: 1, streamProjectId: 1, rawData: 'rawData1', exportData: 'exportData1', areDataExported: true, isStreamValid: true, contentMessage: '', clientDatabaseName: 'clientDatabaseName', exportDate: new Date(2018, 2, 5, 5, 30), insertDate: new Date(2018, 2, 5, 4, 2) },
-    { id: 2, streamProjectId: 1, rawData: 'rawData2', exportData: '', areDataExported: false, isStreamValid: true, contentMessage: '', clientDatabaseName: 'clientDatabaseName', exportDate: null, insertDate: new Date(2018, 1, 14, 15, 7) },
-    { id: 3, streamProjectId: 1, rawData: 'rawData3', exportData: '', areDataExported: false, isStreamValid: false, contentMessage: 'data not valid', clientDatabaseName: 'clientDatabaseName', exportDate: null, insertDate: new Date(2018, 1, 1, 10, 55) }
-  ];
-
-  constructor() { }
+  constructor(private fakeDataGeneratorService: FakeDataGeneratorService) {
+    this.streamDataModels = this.fakeDataGeneratorService.generateStreamDataModels(streamDataModelToGenerateCount);
+  }
   // constructor(private http: HttpClient, private dataConverterService: DataConverterService) { }
 
   getStreamDataViewModel(inferiorInsertDate: Date, superiorInsertDate: Date): Observable<StreamDataViewModel> {
     let filteredStreamDataModels = this.streamDataModels;
+
     if (inferiorInsertDate) {
       filteredStreamDataModels = filteredStreamDataModels.filter(streamDataModel => streamDataModel.insertDate >= inferiorInsertDate);
     }
